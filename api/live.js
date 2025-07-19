@@ -1,23 +1,12 @@
-// /pages/api/live.js
-
 export default async function handler(req, res) {
-  try {
-    const chRes = await fetch("https://maruyaott-tv.vercel.app/ch.js");
-    const chText = await chRes.text();
+  const chUrl = "https://maruyaott-tv.vercel.app/ch.js";
 
-    let channels;
-    try {
-      if (chText.trim().startsWith("[")) {
-        channels = JSON.parse(chText);
-      } else {
-        const match = chText.match(/=\s*(\[\s*\{[\s\S]*?\}\s*\]);?/);
-        const json = match?.[1];
-        if (!json) throw new Error("No array match");
-        channels = JSON.parse(json);
-      }
-    } catch (err) {
-      return res.status(500).send("Channel data parse error");
-    }
+  try {
+    const chText = await fetch(chUrl).then(r => r.text());
+    const match = chText.match(/\[\s*\{[\s\S]*?\}\s*\]/);
+    if (!match) return res.status(500).send("Channel data parse error");
+
+    const channels = JSON.parse(match[0]);
 
     const epgUrl = "https://iptv-org.github.io/epg/guides/ph.xml";
     let m3u = `#EXTM3U x-tvg-url="${epgUrl}"\n`;
@@ -29,8 +18,9 @@ export default async function handler(req, res) {
     }
 
     res.setHeader("Content-Type", "application/x-mpegURL");
+    res.setHeader("Cache-Control", "no-cache");
     res.status(200).send(m3u);
-  } catch (err) {
-    res.status(500).send("Internal Server Error");
+  } catch (e) {
+    res.status(500).send("Failed to load channel list");
   }
 }
