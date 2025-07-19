@@ -1,7 +1,7 @@
 // /pages/api/live.js
 
 export default async function handler(req, res) {
-  const chRes = await fetch("https://tvphfree.pages.dev/ch.js");
+  const chRes = await fetch("https://maruyaott-tv.vercel.app/ch.js");
   const chText = await chRes.text();
   const jsonMatch = chText.match(/=\s*(\[\s*\{[\s\S]*?\}\s*\]);?/);
   const json = jsonMatch?.[1];
