@@ -1,60 +1,26 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <title>OTT M3U Playlist Generator</title>
+  <meta charset="UTF-8" />
+  <title>OTT Playlist Generator</title>
   <style>
-    body {
-      font-family: Arial, sans-serif;
-      background: #111;
-      color: #fff;
-      padding: 20px;
-    }
-    button {
-      background: #b74b4b;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      font-size: 16px;
-      border-radius: 6px;
-      cursor: pointer;
-    }
+    body { background: #111; color: #fff; font-family: sans-serif; text-align: center; padding: 50px; }
+    button { background: #e84118; border: none; padding: 12px 20px; font-size: 18px; color: #fff; border-radius: 6px; cursor: pointer; }
   </style>
 </head>
 <body>
-  <h1>🎥 Generate OTT Playlist (.m3u)</h1>
-  <p>Click the button below to download the latest TVPH Free playlist for OTT Navigator.</p>
-  <button onclick="generateM3U()">Download Playlist</button>
+  <h1>📺 TVPH Playlist Generator</h1>
+  <p>Click below to generate your playlist (valid for 5 minutes).</p>
+  <button onclick="generate()">Download Playlist</button>
 
   <script>
-    async function generateM3U() {
-      try {
-        const res = await fetch('https://maruyaott-tv.vercel.app/ch.js');
-        let js = await res.text();
-
-        // Extract the JSON array part from the JS
-        const json = js.match(/\[\s*\{[\s\S]*\}\s*\]/)[0];
-        const channels = JSON.parse(json);
-
-        let m3u = "#EXTM3U\n";
-        for (const ch of channels) {
-          m3u += `#EXTINF:-1 tvg-logo="${ch.logo}",${ch.title}\n${ch.file}\n`;
-        }
-
-        // Create blob & download
-        const blob = new Blob([m3u], { type: 'audio/x-mpegurl' });
-        const url = URL.createObjectURL(blob);
-
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = "tvphfree_playlist.m3u";
-        document.body.appendChild(a);
-        a.click();
-        a.remove();
-        URL.revokeObjectURL(url);
-      } catch (err) {
-        alert("❌ Error generating playlist: " + err.message);
-      }
+    async function generate() {
+      const res = await fetch('/api/token');
+      const { usage } = await res.json();
+      const a = document.createElement('a');
+      a.href = usage;
+      a.download = 'tvphfree_playlist.m3u';
+      a.click();
     }
   </script>
 </body>
