@@ -14,6 +14,7 @@ export default async function handler(req, res) {
   } catch (err) {
     return res.status(500).send("Invalid JSON");
   }
+
   const epgUrl = "https://iptv-org.github.io/epg/guides/ph.xml";
   let m3u = `#EXTM3U x-tvg-url=\"${epgUrl}\"\n`;
 
