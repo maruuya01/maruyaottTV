@@ -4,23 +4,50 @@
   <meta charset="UTF-8">
   <title>OTT Playlist Generator</title>
   <style>
-    body { background: #000; color: #fff; font-family: sans-serif; text-align: center; margin-top: 80px; }
-    button { background: #e84118; border: none; padding: 14px 28px; font-size: 18px; color: #fff; border-radius: 6px; cursor: pointer; }
+    body {
+      font-family: Arial, sans-serif;
+      background: #111;
+      color: #fff;
+      padding: 20px;
+    }
+    button {
+      background: #b74b4b;
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 16px;
+      border-radius: 6px;
+      cursor: pointer;
+    }
+    code {
+      display: block;
+      background: #222;
+      padding: 10px;
+      margin-top: 15px;
+      border-radius: 6px;
+    }
   </style>
 </head>
 <body>
-  <h1>📺 OTT Playlist Generator</h1>
-  <p>Generate a fresh, secure M3U playlist for OTT Navigator (valid for 5 mins)</p>
-  <button onclick="generate()">Generate Playlist</button>
+  <h1>🎥 OTT Navigator Playlist Link</h1>
+  <p>Click the button to generate and get the .m3u playlist link.</p>
+  <button onclick="generateM3U()">Generate Playlist</button>
+  <div id="result"></div>
 
   <script>
-    async function generate() {
-      const res = await fetch('/api/token');
-      const { usage } = await res.json();
-      const a = document.createElement('a');
-      a.href = usage;
-      a.download = 'tvphfree.m3u';
-      a.click();
+    async function generateM3U() {
+      try {
+        const tokenRes = await fetch("/api/token");
+        const data = await tokenRes.json();
+        const usage = location.origin + "/api/playlist?" + new URLSearchParams({ token: data.usage.split("=")[1] });
+
+        document.getElementById('result').innerHTML = `
+          <p>✅ Playlist URL:</p>
+          <code><a href="${usage}" target="_blank">${usage}</a></code>
+        `;
+      } catch (err) {
+        document.getElementById('result').textContent = "❌ Error generating playlist: " + err.message;
+      }
     }
   </script>
 </body>
