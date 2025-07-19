@@ -1,3 +1,4 @@
+// /pages/api/token.js
 import fetch from 'node-fetch';
 
 const UPSTASH_URL = process.env.UPSTASH_REDIS_REST_URL;
@@ -9,11 +10,11 @@ export default async function handler(req, res) {
 
   await fetch(`${UPSTASH_URL}/set/${token}/${expires}`, {
     headers: {
-      Authorization: `Bearer ${UPSTASH_TOKEN}`
-    }
+      Authorization: `Bearer ${UPSTASH_TOKEN}`,
+    },
   });
 
   res.status(200).json({
-    usage: `playlist.m3u8?token=${token}`
+    usage: `/api/playlist?token=${token}`,
   });
 }
