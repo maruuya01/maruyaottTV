@@ -8,17 +8,16 @@ export default async function handler(req, res) {
     Authorization: 'Bearer AUgSAAIjcDE3MGE5NjEwY2NiZmE0YTZmYWY2ZjNhODJmNDI5ODliOXAxMA',
   };
 
-  // Validate token (optional: no expiry check if disabled)
+  // Validate token (no expiry check)
   const result = await fetch(`https://teaching-mongoose-18450.upstash.io/get/${token}`, {
     headers: upstashHeaders,
   }).then(r => r.json()).catch(() => null);
 
-  const exists = result?.result;
-  if (!exists) {
-    return res.status(403).send("Token invalid or expired");
+  if (!result || !result.result) {
+    return res.status(403).send("Token invalid");
   }
 
-  // No expiration check, but still one-time use:
+  // One-time use: delete token
   await fetch(`https://teaching-mongoose-18450.upstash.io/del/${token}`, {
     headers: upstashHeaders,
   });
