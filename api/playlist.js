@@ -1,5 +1,3 @@
-// /pages/api/playlist.js
-
 export default async function handler(req, res) {
   const { token } = req.query;
   if (!token) return res.status(400).send("Missing token");
@@ -8,12 +6,12 @@ export default async function handler(req, res) {
     Authorization: 'Bearer AUgSAAIjcDE3MGE5NjEwY2NiZmE0YTZmYWY2ZjNhODJmNDI5ODliOXAxMA',
   };
 
-  // Validate token (no expiry check)
+  // Validate token
   const result = await fetch(`https://teaching-mongoose-18450.upstash.io/get/${token}`, {
     headers: upstashHeaders,
   }).then(r => r.json()).catch(() => null);
 
-  if (!result || !result.result) {
+  if (!result || result.result !== "valid") {
     return res.status(403).send("Token invalid");
   }
 
@@ -37,12 +35,12 @@ export default async function handler(req, res) {
   }
 
   const epgUrl = "https://iptv-org.github.io/epg/guides/ph.xml";
-  let m3u = `#EXTM3U x-tvg-url=\"${epgUrl}\"\n`;
+  let m3u = `#EXTM3U x-tvg-url="${epgUrl}"\n`;
 
   for (const ch of channels) {
     if (!ch.title || !ch.file) continue;
     const tvgId = ch.tvg_id || ch.title.toLowerCase().replace(/[^a-z0-9]/g, '_');
-    m3u += `#EXTINF:-1 tvg-id=\"${tvgId}\" tvg-name=\"${ch.title}\" tvg-logo=\"${ch.logo || ''}\" group-title=\"TV\",${ch.title}\n${ch.file}\n`;
+    m3u += `#EXTINF:-1 tvg-id="${tvgId}" tvg-name="${ch.title}" tvg-logo="${ch.logo || ''}" group-title="TV",${ch.title}\n${ch.file}\n`;
   }
 
   res.setHeader("Content-Type", "application/x-mpegURL");
