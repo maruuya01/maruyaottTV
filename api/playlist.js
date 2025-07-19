@@ -15,23 +15,30 @@ export default async function handler(req, res) {
     return res.status(403).send("Token invalid");
   }
 
-  // One-time use: delete token
+  // One-time delete
   await fetch(`https://teaching-mongoose-18450.upstash.io/del/${token}`, {
     headers: upstashHeaders,
   });
 
+  // Fetch channel file
   const chRes = await fetch("https://maruyaott-tv.vercel.app/ch.js");
   const chText = await chRes.text();
-  const jsonMatch = chText.match(/=\s*(\[\s*\{[\s\S]*?\}\s*\]);?/);
-  const json = jsonMatch?.[1];
 
-  if (!json) return res.status(500).send("Channel data parse error");
-
+  // Attempt JSON parse directly, fallback to regex match
   let channels;
   try {
-    channels = JSON.parse(json);
+    if (chText.trim().startsWith("[")) {
+      // pure JSON file
+      channels = JSON.parse(chText);
+    } else {
+      // assume js assignment
+      const match = chText.match(/=\s*(\[\s*\{[\s\S]*?\}\s*\]);?/);
+      const json = match?.[1];
+      if (!json) throw new Error("Invalid format");
+      channels = JSON.parse(json);
+    }
   } catch (err) {
-    return res.status(500).send("Invalid JSON");
+    return res.status(500).send("Channel data parse error");
   }
 
   const epgUrl = "https://iptv-org.github.io/epg/guides/ph.xml";
